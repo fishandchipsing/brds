@@ -8,7 +8,7 @@ import numpy as np
 from pydub import AudioSegment
 from pydub.playback import play
 from pydub import AudioSegment
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 def freq_from_autocorr(signal, fs):
@@ -26,7 +26,7 @@ def freq_from_autocorr(signal, fs):
 
     # Find the first low point
     d = diff(corr)
-    
+
     try:
       start = find(d > 0)[0]
       # Find the next peak after the low point (other than 0 lag).  This bit is
@@ -51,6 +51,7 @@ def load(filename):
     return signal, sample_rate, channels
 
 def random_bird():
+    # Put the root of the bird data set here
 	dir_root = '/Users/korymath/Desktop/brds/Dataset/wav/'
 	audio_file = dir_root + random.choice(os.listdir(dir_root))
 	return audio_file
@@ -68,7 +69,7 @@ print('frequencies', freq_from_autocorr(signal, sample_rate))
 audio = AudioSegment.from_wav(random_bird())
 play(audio[:5000])
 
-# Mix two bird noises 
+# Mix two bird noises
 print('mixing two bird sounds')
 sound1 = AudioSegment.from_file(random_bird())
 sound2 = AudioSegment.from_file(random_bird())
@@ -88,7 +89,3 @@ play(sound2_repeats_until_sound1_ends)
 # Play sound2 twice
 print('sound2_plays_twice')
 play(sound2_plays_twice)
-
-
-
-
