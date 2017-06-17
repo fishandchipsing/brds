@@ -2,3 +2,9 @@ scikit-learn==0.18.1
 scipy==0.18.1
 numpy==1.12.1
 librosa==0.5.1
+pretty-midi==0.2.7
+pandas==0.20.2
+seaborn==0.7.1
+tqdm==4.14.0
+feather-format-0.4.0
+pyarrow-0.4.1
