@@ -7,38 +7,7 @@ import pretty_midi
 import numpy as np
 from pydub import AudioSegment
 from pydub.playback import play
-from pydub import AudioSegment
-import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
-
-def freq_from_autocorr(signal, fs):
-    """Estimate frequency using autocorrelation
-    Pros: Best method for finding the true fundamental of any repeating wave,
-    even with strong harmonics or completely missing fundamental
-    Cons: Not as accurate, doesn't work for inharmonic things like musical
-    instruments, this implementation has trouble with finding the true peak
-    """
-    # Calculate autocorrelation (same thing as convolution, but with one input
-    # reversed in time), and throw away the negative lags
-    signal -= np.mean(signal)  # Remove DC offset
-    corr = fftconvolve(signal, signal[::-1], mode='full')
-    corr = corr[len(corr)/2:]
-
-    # Find the first low point
-    d = diff(corr)
-
-    try:
-      start = find(d > 0)[0]
-      # Find the next peak after the low point (other than 0 lag).  This bit is
-      # not reliable for long signals, due to the desired peak occurring between
-      # samples, and other peaks appearing higher.
-      i_peak = argmax(corr[start:]) + start
-      i_interp = parabolic(corr, i_peak)[0]
-      freq = fs / i_interp
-    except IndexError as e:
-      freq = float('nan')
-
-    return freq
 
 def load(filename):
     """
@@ -52,7 +21,7 @@ def load(filename):
 
 def random_bird():
     # Put the root of the bird data set here
-	dir_root = '/Users/korymath/Desktop/brds/Dataset/wav/'
+	dir_root = 'Dataset/wav/'
 	audio_file = dir_root + random.choice(os.listdir(dir_root))
 	return audio_file
 
@@ -62,11 +31,9 @@ signal, sample_rate, channels = load(random_bird())
 # Signal
 print('signal', signal)
 
-# Frequency from autocorrelation
-print('frequencies', freq_from_autocorr(signal, sample_rate))
-
 # Using PyDub
 audio = AudioSegment.from_wav(random_bird())
+print(audio)
 play(audio[:5000])
 
 # Mix two bird noises
