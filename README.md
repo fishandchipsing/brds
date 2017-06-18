@@ -22,6 +22,8 @@ Install requirements
 python -m pip install -r requirements.txt
 ~~~
 
+Download the MIR-QBSH-corpus to the Dataset folder
+
 # Notebook
 
 ~~~
