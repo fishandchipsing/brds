@@ -22,7 +22,19 @@ Install requirements
 python -m pip install -r requirements.txt
 ~~~
 
+Install pyfluidsynth
+https://github.com/nwhitehead/pyfluidsynth
+
 Download the MIR-QBSH-corpus to the Dataset folder
+
+Download the soundfont to the folder
+https://packages.debian.org/sid/fluid-soundfont-gm
+
+~~~
+wget http://mirlab.org/dataSet/public/MIR-QBSH-corpus.rar
+~~~
+
+Unarchive and then the notebook will point to it.
 
 # Notebook
 
