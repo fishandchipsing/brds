@@ -27,6 +27,12 @@ https://github.com/nwhitehead/pyfluidsynth
 
 Download the MIR-QBSH-corpus to the Dataset folder
 
+Install timidity, needed for auto conversion to wav
+
+~~~
+brew install timidity
+~~~
+
 Add a recon/ folder or else you will get a directory not found error
 
 Download the soundfont to the folder
