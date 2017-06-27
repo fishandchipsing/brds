@@ -207,7 +207,7 @@ def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_si
     song_recon = pretty_midi.PrettyMIDI()
     
     # Create an Instrument instance
-    instrument_name = 'Bird Tweet'
+    instrument_name = 'Bird Tweet'  # 'Bird Tweet'
     instrument_program = pretty_midi.instrument_name_to_program(instrument_name)
     instrument = pretty_midi.Instrument(program=instrument_program)
         
@@ -240,9 +240,10 @@ def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_si
     # need to scale over the range of pitches for the bird tweets
     # to sound anywhere near interesting... push to almost
     # the full range of the general midi bird pitches
-    print 'max and min', max(pitches), min(pitches)
+    # print 'max and min', max(pitches), min(pitches)
     # pitches = scale_linear_bycolumn(pitches, high=110, low=10)
-    print 'new max and min', max(pitches), min(pitches)
+    # print 'new max and min', max(pitches), min(pitches)
+    
     for i in range(len(pitches)):
         note = pretty_midi.Note(velocity=velocities[i], pitch=int(pitches[i]), 
                                 start=start_times[i], 
@@ -268,7 +269,9 @@ def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_si
     wav_f = reconroot + revised_file_name[:-4] + '.wav'
     
     # play the sound immediately 
-    subprocess.call(['fluidsynth', 'fluid_r3_gm2.sf2', midi_f, '--no-shell'])
+    # need to have the correct soundfont in the Dataset folder
+    subprocess.call(['fluidsynth', 'Dataset/soundfonts/fluid_r3_gm2.sf2', midi_f, '--no-shell'])
+    # subprocess.call(['fluidsynth', 'Dataset/soundfonts/Birdsongs_Arizona.sf2', midi_f, '--no-shell'])
 
     ## save as a wav file for easy comparison
     subprocess.call(['timidity', midi_f, '-Ow', '-o', wav_f])
