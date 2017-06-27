@@ -241,13 +241,13 @@ def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_si
     # to sound anywhere near interesting... push to almost
     # the full range of the general midi bird pitches
     print 'max and min', max(pitches), min(pitches)
-    pitches = scale_linear_bycolumn(pitches, high=110, low=10)
+    # pitches = scale_linear_bycolumn(pitches, high=110, low=10)
     print 'new max and min', max(pitches), min(pitches)
     for i in range(len(pitches)):
         note = pretty_midi.Note(velocity=velocities[i], pitch=int(pitches[i]), 
                                 start=start_times[i], 
                                 end=end_times[i])
-        # print(note)
+        print(note)
         # append the note to the instrument
         instrument.notes.append(note)
             
