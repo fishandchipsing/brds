@@ -167,7 +167,7 @@ def analyse_pair(head, midi_filename, freq_func=freq_from_autocorr, num_windows=
     
     # this is arbitraily set and may need to be tuned 
     freq_change_max = freq_mean + 2*freq_std
-    
+
     bad_idx = np.argwhere(freq_change > freq_change_max).flatten()
     for i in bad_idx:
         y_hat_freq[i] = float('nan')
@@ -238,10 +238,11 @@ def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_si
             velocities.append(110)
 
     # need to scale over the range of pitches for the bird tweets
-    # to sound anywhere near interesting
+    # to sound anywhere near interesting... push to almost
+    # the full range of the general midi bird pitches
     print 'max and min', max(pitches), min(pitches)
-    pitches = scale_linear_bycolumn(pitches, high=100, low=25)
-    print 'max and min', max(pitches), min(pitches)
+    pitches = scale_linear_bycolumn(pitches, high=110, low=10)
+    print 'new max and min', max(pitches), min(pitches)
     for i in range(len(pitches)):
         note = pretty_midi.Note(velocity=velocities[i], pitch=int(pitches[i]), 
                                 start=start_times[i], 
