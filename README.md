@@ -30,7 +30,7 @@ brew install fluidsynth
 Install pyfluidsynth
 https://github.com/nwhitehead/pyfluidsynth
 
-Download the MIR-QBSH-corpus to the Dataset folder
+Download the MIR-QBSH-corpus and move it inside the /Dataset folder
 
 ~~~
 wget http://mirlab.org/dataSet/public/MIR-QBSH-corpus.rar
@@ -59,6 +59,11 @@ Record for five seconds humming and then translate to midi and play back (it wil
 ~~~
 python birds.py
 ~~~
+
+On line 257 of birds.py you can switch to custom Sound fonts
+subprocess.call(['fluidsynth', 'Dataset/soundfonts/fluid_r3_gm2.sf2', midi_f, '--no-shell'])
+
+#subprocess.call(['fluidsynth', 'Dataset/soundfonts/Birdsongs_Arizona.sf2', midi_f, '--no-shell'])
 
 Use existing .wav humming recording from the MIR-QBSH-corpus
 
