@@ -69,16 +69,16 @@ def freq_from_autocorr(audio_signal, sr):
     except IndexError as e:
         # index could not be found, set the pitch to frequency 0
         freq = float('nan')
-    
-    # The voiced speech of a typical adult male will have a fundamental frequency 
+
+    # The voiced speech of a typical adult male will have a fundamental frequency
     # from 85 to 180 Hz, and that of a typical adult female from 165 to 255 Hz.
     # Lowest Bass E2 (82.41Hz) to Soprano to C6 (1046.50Hz)
-    
+
     # This number can be set with insight from the full dataset
     # if freq < 80 or freq > 1000:
     if freq < 100 or freq > 400:
         freq = float('nan')
-        
+
     return freq
 
 def load(filename, sr=8000):
@@ -92,19 +92,19 @@ def load(filename, sr=8000):
 
 def analyse_pair(head, midi_filename, freq_func=freq_from_autocorr, num_windows=10, fs=8000, frame_size=256):
     """Analyse a single input example from the MIR-QBSH dataset."""
-    # set parameters 
-    # sampling rate of the data samples is 8kHz or 8000Hz 
+    # set parameters
+    # sampling rate of the data samples is 8kHz or 8000Hz
     # ground truth frame size is at 256
     # can oversample for increased resolution
 
     ## Load data and label
     fileroot = head + '/' + midi_filename
-    
+
     # Load the midi data as well
     midi_file = midiroot + midi_filename + '.mid'
     # print(midiroot)
 #     midi_data = pretty_midi.PrettyMIDI(midi_file)
-    midi_data = None 
+    midi_data = None
     # print(midi_data)
     # think about alignment to midi_data.instruments[0].notes
     # currently alignment to true midi is NOT handled
@@ -115,8 +115,8 @@ def analyse_pair(head, midi_filename, freq_func=freq_from_autocorr, num_windows=
     # print('length of audio_signal', len(audio_signal))
 
     # Load matching true labelled values
-    # The .pv file contains manually labelled pitch file, 
-    # with frame size = 256 and overlap = 0. 
+    # The .pv file contains manually labelled pitch file,
+    # with frame size = 256 and overlap = 0.
     with open(fileroot+'.pv', 'r') as f:
         y = []
         for line in f:
@@ -124,7 +124,7 @@ def analyse_pair(head, midi_filename, freq_func=freq_from_autocorr, num_windows=
                 y.append(float(line))
             else:
                 y.append(float('nan'))
-    # length of the true pitch values should match 
+    # length of the true pitch values should match
     # the number of audio frames to analyse
     # print('length of true pitch values', len(y))
 
@@ -150,28 +150,28 @@ def analyse_pair(head, midi_filename, freq_func=freq_from_autocorr, num_windows=
             # this is where the magic happens
             # define the function to extract the frequency from the windowed signal
             window_freq.append(freq_func(window_s, fs))
-        
-        # append the median of the window frequencies, 
+
+        # append the median of the window frequencies,
         # somewhat robust to anomalies
         y_hat_freq.append(np.median(window_freq))
 
-    # One approach is to remove the outlier points by eliminating any 
-    # points that were above (Mean + 2*SD) and any points below (Mean - 2*SD) 
+    # One approach is to remove the outlier points by eliminating any
+    # points that were above (Mean + 2*SD) and any points below (Mean - 2*SD)
     # before plotting the frequencies. This can not happen on the frequency itself
     # and rather happens on the frequency change, thus smoothing out huge leaps
     freq_change = np.abs(np.diff(y_hat_freq))
-    
+
     # remove any points where the frequency change is drastic
     freq_mean = np.nanmean(freq_change)
     freq_std = np.nanstd(freq_change)
-    
-    # this is arbitraily set and may need to be tuned 
+
+    # this is arbitraily set and may need to be tuned
     freq_change_max = freq_mean + 2*freq_std
 
     bad_idx = np.argwhere(freq_change > freq_change_max).flatten()
     for i in bad_idx:
         y_hat_freq[i] = float('nan')
-    
+
     # Convert the frequencies to midi notes
     y_hat = librosa.hz_to_midi(y_hat_freq)
 
@@ -184,12 +184,12 @@ def analyse_pair(head, midi_filename, freq_func=freq_from_autocorr, num_windows=
     mse = np.nanmean(squared_error)
     mae = np.nanmean(absolute_error)
     # print('MSE', mse)
-    
+
     # create a version of the frequency distribution with no nans
     y_hat_freq_no_nan = [value for value in y_hat_freq if not math.isnan(value)]
-    
+
     # clean up the pitches
-    clean_y_hat = cleaned_midi_pitches(y_hat)    
+    clean_y_hat = cleaned_midi_pitches(y_hat)
     return audio_signal, midi_data, y, y_hat, clean_y_hat, y_hat_freq, y_hat_freq_no_nan, squared_error, mse, absolute_error, mae
 
 def scale_linear_bycolumn(rawpoints, high=100.0, low=0.0):
@@ -198,19 +198,20 @@ def scale_linear_bycolumn(rawpoints, high=100.0, low=0.0):
     rng = maxs - mins
     return high - (((high - low) * (maxs - rawpoints)) / rng)
 
-def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_size=256):    
-    # Save the extraced pitches 
+def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_size=256):
+    # Save the extraced pitches
     np.savetxt(fname + '.out', clean_y_hat, delimiter=',')
-    
+
     # Save the midi rendition
     # Create a PrettyMIDI object
     song_recon = pretty_midi.PrettyMIDI()
-    
+
     # Create an Instrument instance
     instrument_name = 'Bird Tweet'  # 'Bird Tweet'
     instrument_program = pretty_midi.instrument_name_to_program(instrument_name)
     instrument = pretty_midi.Instrument(program=instrument_program)
-        
+    #instrument = pretty_midi.Instrument(program=0)
+
     # get the real indecies
     real_idx = np.argwhere(~np.isnan(clean_y_hat))
 
@@ -224,8 +225,8 @@ def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_si
     end_times = []
     pitches = []
     velocities = []
-    
-    time_per_step = float(frame_size / (fs * 1.0)) # 0.032 
+
+    time_per_step = float(frame_size / (fs * 1.0)) # 0.032
 
     for group in consecutive_real:
         # only build note if it exists for longer than a single step
@@ -243,36 +244,38 @@ def save_extracted_pitches(clean_y_hat, fname, reconroot=None, fs=8000, frame_si
     # print 'max and min', max(pitches), min(pitches)
     # pitches = scale_linear_bycolumn(pitches, high=110, low=10)
     # print 'new max and min', max(pitches), min(pitches)
-    
+
     for i in range(len(pitches)):
-        note = pretty_midi.Note(velocity=velocities[i], pitch=int(pitches[i]), 
-                                start=start_times[i], 
+        note = pretty_midi.Note(velocity=velocities[i], pitch=int(pitches[i]),
+                                start=start_times[i],
                                 end=end_times[i])
         print(note)
         # append the note to the instrument
         instrument.notes.append(note)
-            
+
     # Add the instrument to the PrettyMIDI object
     song_recon.instruments.append(instrument)
-    
+
     # Write out the MIDI data
     if reconroot is not None:
         revised_file_name = '-'.join(fname.split('/')[3:])[:-4] + '-' + instrument_name.replace(" ", "_") + '.recon.mid'
     else:
         revised_file_name = fname + '-' + instrument_name.replace(" ", "_") + '.recon.mid'
         reconroot = ''
-    
+
     print reconroot + revised_file_name
     song_recon.write(reconroot + revised_file_name)
-    
-    midi_f = reconroot + revised_file_name
-    wav_f = reconroot + revised_file_name[:-4] + '.wav'
-    
-    # play the sound immediately 
-    # need to have the correct soundfont in the Dataset folder
-    subprocess.call(['fluidsynth', 'Dataset/soundfonts/fluid_r3_gm2.sf2', midi_f, '--no-shell'])
-    # subprocess.call(['fluidsynth', 'Dataset/soundfonts/Birdsongs_Arizona.sf2', midi_f, '--no-shell'])
 
+    midi_f = reconroot + revised_file_name
+    wav_f =  reconroot + revised_file_name[:-4] + '_generated.wav'
+
+    # play the sound immediately
+    # need to have the correct soundfont in the Dataset folder
+    print('i am having issues here')
+    subprocess.call(['fluidsynth', 'Dataset/soundfonts/fluid_r3_gm2.sf2', midi_f, '--no-shell'])
+    #subprocess.call(['fluidsynth', 'Dataset/soundfonts/Birdsongs_Arizona.sf2', midi_f, '--no-shell'])
+
+    print('or here')
     ## save as a wav file for easy comparison
     subprocess.call(['timidity', midi_f, '-Ow', '-o', wav_f])
 
@@ -292,7 +295,7 @@ def cleaned_midi_pitches(old_y_hat):
     # get indecies of nan values
     nan_idx = np.argwhere(np.isnan(y_hat_clean))
 
-    # interpolate over single nans 
+    # interpolate over single nans
     consecutive_nans = []
     for k, g in groupby(enumerate(nan_idx.flatten()), lambda (i,x):i-x):
         consecutive_nans.append(map(itemgetter(1), g))
@@ -337,26 +340,26 @@ def main(args=None):
         record_seconds = args.record_seconds
         millis = int(round(time.time() * 1000))
         input_fname = "Dataset/recordings/{}.wav".format(millis)
-         
+
         audio = pyaudio.PyAudio()
-         
+
         # start Recording
         stream = audio.open(format=format, channels=channels,
                         rate=fs, input=True,
                         frames_per_buffer=frame_size)
         print "recording..."
         frames = []
-         
+
         for i in range(0, int(fs / frame_size * record_seconds)):
             data = stream.read(frame_size)
             frames.append(data)
         print "finished recording"
-         
+
         # stop Recording
         stream.stop_stream()
         stream.close()
         audio.terminate()
-         
+
         print('saving wave file', input_fname)
         waveFile = wave.open(input_fname, 'wb')
         waveFile.setnchannels(channels)
@@ -392,12 +395,12 @@ def main(args=None):
             # define the function to extract the frequency from the windowed signal
             window_freq.append(freq_func(window_s, fs))
 
-        # append the median of the window frequencies, 
+        # append the median of the window frequencies,
         # somewhat robust to anomalies
         y_hat_freq.append(np.median(window_freq))
 
-    # One approach is to remove the outlier points by eliminating any 
-    # points that were above (Mean + 2*SD) and any points below (Mean - 2*SD) 
+    # One approach is to remove the outlier points by eliminating any
+    # points that were above (Mean + 2*SD) and any points below (Mean - 2*SD)
     # before plotting the frequencies. This can not happen on the frequency itself
     # and rather happens on the frequency change, thus smoothing out huge leaps
     freq_change = np.abs(np.diff(y_hat_freq))
@@ -419,12 +422,14 @@ def main(args=None):
     y_hat_freq_no_nan = [value for value in y_hat_freq if not math.isnan(value)]
 
     # clean up the pitches
-    clean_y_hat = cleaned_midi_pitches(y_hat)   
-    song_recon = save_extracted_pitches(clean_y_hat, fname=fname, fs=fs, frame_size=frame_size)    
+
+    clean_y_hat = cleaned_midi_pitches(y_hat)
+
+    song_recon = save_extracted_pitches(clean_y_hat, fname=fname, fs=fs, frame_size=frame_size)
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser()
- 
+
    parser.add_argument('--fname', default=None)
    parser.add_argument('--num_windows', default=10, type=int)
    parser.add_argument('--frame_size', default=1024, type=int)

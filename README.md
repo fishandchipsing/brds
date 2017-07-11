@@ -22,10 +22,21 @@ Install requirements
 python -m pip install -r requirements.txt
 ~~~
 
+Install fluidsynth
+~~~
+brew install fluidsynth
+~~~
+
 Install pyfluidsynth
 https://github.com/nwhitehead/pyfluidsynth
 
 Download the MIR-QBSH-corpus to the Dataset folder
+
+~~~
+wget http://mirlab.org/dataSet/public/MIR-QBSH-corpus.rar
+~~~
+
+Add a recon/ folder or else you will get a directory not found error
 
 Install timidity, needed for auto conversion to wav
 
@@ -33,18 +44,31 @@ Install timidity, needed for auto conversion to wav
 brew install timidity
 ~~~
 
-Add a recon/ folder or else you will get a directory not found error
-
 Download the soundfont to the folder
 https://packages.debian.org/sid/fluid-soundfont-gm
 
+Create the folder Dataset/soundfonts and place fluid_r3_gm2.sf2 in it or any other Soundfont you like
+
+Create the folder Dataset/recordings to old the saved files.
+
+
+# Run standalone code
+
+Record for five seconds humming and then translate to midi and play back (it will)
+
 ~~~
-wget http://mirlab.org/dataSet/public/MIR-QBSH-corpus.rar
+python birds.py
 ~~~
 
-Unarchive and then the notebook will point to it.
+Use existing .wav humming recording from the MIR-QBSH-corpus
 
-# Notebook
+~~~
+python birds.py --fname 'Dataset/MIR-QBSH-corpus/waveFile/year2003/person00001/00014.wav'
+~~~
+
+
+
+# Notebook Version
 
 ~~~
 jupyter notebook
